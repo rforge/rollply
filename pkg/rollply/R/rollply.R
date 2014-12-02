@@ -1,6 +1,5 @@
 # 
-
-
+# 
 # rollply: applies a function on a data frame over a sliding window. Slow but
 #   generic.
 # Originally written by Alexandre Genin, 2014, still uncomplete
@@ -58,43 +57,43 @@
 #' @useDynLib rollply
 #' @importFrom Rcpp sourceCpp
 #' @export
-# 
+#'
 rollply <- function(.data,
                     .rollvars,
                     wdw.size,
                     fun,
                     mesh=NULL,
                     mesh.res=200,
-                    mesh.type='grid_identical', # grid_identical, grid_proportional, ahull_fill
+                    mesh.type='grid_identical', # grid_identical, grid_proportional, ahull_crop, ahull_fill
                     mesh.options=NULL,
                     padding='none', # outside/inside/none or value
                     .parallel=FALSE,
                     ...) {  # passed to fun
   
+  .rollvars <- formulr::as.formulr(.rollvars)
+  
   #<!todo!> add checks that variables are present in data.frame otherwise we 
   # will have wierd ass results due to lexical scoping.
-  check_vars(.rollvars, names(.data), names(mesh), mesh.type, mesh)
+  check_args(.rollvars, .data, mesh, mesh.type, mesh)
   
   # Handle groups: if we provide groups, then we dispatch rollply within each
   # groups using ddply.
-  if (.has_groups(.rollvars)) {
-    # Build new argument lists
+  if (formulr::has_groups(.rollvars)) {
+    # Build new argument list
     args.grps <- as.list(match.call(), expand.dots=TRUE)
-    args.grps[['.rollvars']]  <- .split_groups(.rollvars)[['vars']]
-    args.grps[['.variables']] <- .split_groups(.rollvars)[['groups']]
+    # Make .variables used by ddply
+    args.grps[['.variables']] <- form.g(.rollvars) # grabbed by ddply
+    # Update rollvars
+    form.g(.rollvars) <- NA
+    args.grps[['.rollvars']]  <- .rollvars 
+    # Call ddply
     return( do.call(plyr::ddply, args.grps, envir=parent.frame()) )
   }
   
   # We extract variables used for computing and build a matrix
   # <!todo!> Add check that variables used for rolling windows are numeric!
-  .rollvars.quoted <- plyr::as.quoted(.rollvars)
-  coords <- lapply(.rollvars.quoted, eval, envir=.data)
-  if (any(!unlist(lapply(coords,is.numeric)))) { 
-    stop('Moving window parameters non-numeric.')
-  }
-  coords <- matrix(unlist(coords), 
-                   ncol=length(.rollvars.quoted),
-                   dimnames=list(NULL, names(.rollvars.quoted)))
+  coords <- formulr::eval.formulr(.rollvars, envir=.data, enclos=parent.frame())
+  coords <- do.call(cbind, coords[['x']])
   
   # Check if NAs, and if yes then act
   NA_lines <- apply(coords, 1, function(X) any(is.na(X)))
