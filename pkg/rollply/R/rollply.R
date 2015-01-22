@@ -74,17 +74,17 @@ rollply <- function(.data,
   
   #<!todo!> add checks that variables are present in data.frame otherwise we 
   # will have wierd ass results due to lexical scoping.
-  check_args(.rollvars, .data, mesh, mesh.type, mesh)
+  check_args(.rollvars, .data, mesh, mesh.type)
   
   # Handle groups: if we provide groups, then we dispatch rollply within each
   # groups using ddply.
-  if (formulr::has_groups(.rollvars)) {
+  if (formulr::has.g(.rollvars)) {
     # Build new argument list
     args.grps <- as.list(match.call(), expand.dots=TRUE)
     # Make .variables used by ddply
-    args.grps[['.variables']] <- form.g(.rollvars) # grabbed by ddply
+    args.grps[['.variables']] <- formulr::form.g(.rollvars) # grabbed by ddply
     # Update rollvars
-    form.g(.rollvars) <- NA
+    formulr::form.g(.rollvars) <- NA
     args.grps[['.rollvars']]  <- .rollvars 
     # Call ddply
     return( do.call(plyr::ddply, args.grps, envir=parent.frame()) )
@@ -98,7 +98,7 @@ rollply <- function(.data,
   # Check if NAs, and if yes then act
   NA_lines <- apply(coords, 1, function(X) any(is.na(X)))
   if (any(NA_lines)) {
-    # We do not implement a removing of NAs as this would create a copy of 
+    # We do not remove NAs as this would create a copy of 
     # a potentially big dataset.
     stop('NA in moving window parameters are not supported. Try removing them.')
   }
