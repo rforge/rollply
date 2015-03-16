@@ -1,0 +1,11 @@
+Package: formulr
+Title: Miscelaneous tools to handle formulas.
+Version: 0.001
+Authors@R: "Alexandre Génin <alex@lecairn.org> [aut, cre]"
+Description: Provides functions to handle formulas of the form a ~ b | c
+Depends:
+    R (>= 3.1.2)
+Imports:
+    plyr
+License: GPL-2
+LazyData: true
