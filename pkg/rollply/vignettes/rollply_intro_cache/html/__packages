@@ -1,0 +1,17 @@
+base
+colorout
+setwidth
+devtools
+plyr
+ggplot2
+tripack
+sgeostat
+spatstat
+sp
+splancs
+alphahull
+testthat
+rollply
+proj4
+rgdal
+tidyr
