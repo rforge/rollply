@@ -5,6 +5,19 @@
 
 using namespace Rcpp;
 
+// inahull_cpp_multiple
+LogicalVector inahull_cpp_multiple(List ahull_obj, NumericVector X, NumericVector Y);
+RcppExport SEXP rollply_inahull_cpp_multiple(SEXP ahull_objSEXP, SEXP XSEXP, SEXP YSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type ahull_obj(ahull_objSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Y(YSEXP);
+    __result = Rcpp::wrap(inahull_cpp_multiple(ahull_obj, X, Y));
+    return __result;
+END_RCPP
+}
 // lookup_in_wdw
 LogicalVector lookup_in_wdw(NumericMatrix current_coords, NumericMatrix coords, double wdw);
 RcppExport SEXP rollply_lookup_in_wdw(SEXP current_coordsSEXP, SEXP coordsSEXP, SEXP wdwSEXP) {
